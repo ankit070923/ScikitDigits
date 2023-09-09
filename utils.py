@@ -51,13 +51,13 @@ def predict_and_eval(model, X_test, y_test):
     #     ax.set_title(f"Prediction: {prediction}")
     accuracy = accuracy_score(y_test, predicted)
 
-    print(
-    f"Classification report for classifier {model}:\n"
-    f"{metrics.classification_report(y_test, predicted)}\n"
-    )
+    # print(
+    # f"Classification report for classifier {model}:\n"
+    # f"{metrics.classification_report(y_test, predicted)}\n"
+    # )
 
-    disp = metrics.ConfusionMatrixDisplay.from_predictions(y_test, predicted)
-    disp.figure_.suptitle("Confusion Matrix")
-    print(f"Confusion matrix:\n{disp.confusion_matrix}")
-    plt.show()
+    # disp = metrics.ConfusionMatrixDisplay.from_predictions(y_test, predicted)
+    # disp.figure_.suptitle("Confusion Matrix")
+    # print(f"Confusion matrix:\n{disp.confusion_matrix}")
+    # plt.show()
     return accuracy,predicted
