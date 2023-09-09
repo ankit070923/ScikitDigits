@@ -13,45 +13,34 @@ hand-written digits, from 0-9.
 
 # Standard scientific Python imports# This example shows how scikit-learn can be used to recognize images of hand-written digits, from 0-9.
 
+from utils import preprocess_data, split_train_dev_test,read_digits,predict_and_eval,make_param_combinations,tune_hparams
 
-# Import datasets, classifiers and performance metrics
-from utils import preprocess_data, train_model, split_train_dev_test,read_digits,predict_and_eval
-
-gama_ranges = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
+gamma_ranges = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
 C_ranges = [0.1,1,2,5,10]
-# The digits dataset consists of 8x8 pixel images of digits. The images attribute of the dataset stores 8x8 arrays of grayscale values for each image. We will use these arrays to visualize the first 4 images. The target attribute of the dataset stores the digit each image represents and this is included in the title of the 4 plots below.
-# Note: if we were working from image files (e.g., ‘png’ files), we would load them using matplotlib.pyplot.imread.
+param_list_dict = {'gamma':gamma_ranges,'C':C_ranges}
 
-# 1. Data Loading
-
-
+test_size_ranges = [0.1, 0.2, 0.3]
+dev_size_ranges = [0.1, 0.2, 0.3]
+split_size_list_dict = {'test_size':test_size_ranges,'dev_size':dev_size_ranges}
+                        
 x,y = read_digits()
+splits = make_param_combinations(split_size_list_dict)
 
-# 3. Data splitting
-X_train, X_test,X_dev, y_train, y_test,y_dev = split_train_dev_test(x, y, test_size=0.3, dev_size=0.2);
+for split in splits:
 
-# 4. Data Preprocessing
-X_train = preprocess_data(X_train)
-X_test = preprocess_data(X_test)
-X_dev = preprocess_data(X_dev)
+    # Data splitting: Split data into train, test and dev as per given test and dev sizes
+    X_train, X_test, X_dev, y_train, y_test, y_dev = split_train_dev_test(x,y, **split)
 
-best_accuracy_so_far = -1
-best_model = None
-for cur_gamma in gama_ranges:
-    for cur_c in C_ranges:
-        cur_model = train_model(X_train, y_train, {'gamma': cur_gamma,'C':cur_c}, model_type='svm')
-        cur_accuracy,predicted = predict_and_eval(cur_model, X_dev, y_dev)
-        if cur_accuracy > best_accuracy_so_far:
-            print(f"New best accuracy {cur_accuracy}")
-            best_accuracy_so_far = cur_accuracy
-            optimal_gamma = cur_gamma
-            optimal_C = cur_c
-            best_model = cur_model
+    # Data preprocessing
+    X_train = preprocess_data(X_train)
+    X_test = preprocess_data(X_test)
+    X_dev = preprocess_data(X_dev)
 
-print(f"Optimal C is {optimal_C} , Optimal gamma is {optimal_gamma}")
+    best_hparams,best_model, best_accuracy =  tune_hparams(X_train,y_train,X_dev,y_dev,param_list_dict)
 
+    train_acc,predicted = predict_and_eval(best_model,X_train,y_train)
+    test_acc,predicted = predict_and_eval(best_model,X_test,y_test)
+    dev_acc,predicted = predict_and_eval(best_model,X_dev,y_dev)
 
-
-# Predict the value of the digit on the test subset
-# 6.Predict and Evaluate 
-accuracy,predicted = predict_and_eval(best_model, X_test, y_test)
+    print("Test size=%g, Dev size=%g, Train_size=%g, Train_acc=%g, Test_acc=%g, Dev_acc=%g" % (split['test_size'],split['dev_size'],1-split['test_size']-split['dev_size'],train_acc,test_acc,dev_acc) ,sep='')
+    print("best hparams=",dict([(x,best_hparams[x]) for x in param_list_dict.keys()]))

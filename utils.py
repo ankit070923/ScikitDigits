@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
+from itertools import product
 
 #read gigits
 def read_digits():
@@ -61,3 +62,25 @@ def predict_and_eval(model, X_test, y_test):
     # print(f"Confusion matrix:\n{disp.confusion_matrix}")
     # plt.show()
     return accuracy,predicted
+
+def make_param_combinations(param_list_dict):
+    hparams = param_list_dict.keys()
+    ranges = [param_list_dict[x] for x in hparams]
+    list_of_all_param_combination=[ dict(zip(hparams,x)) for x in list(product(*ranges))]
+    return list_of_all_param_combination    
+        
+
+def tune_hparams(X_train, y_train, X_dev, y_dev, param_list_dict):
+    list_of_all_param_combination = make_param_combinations(param_list_dict)
+    best_accuracy_so_far = -1
+    best_model = None
+    for params in list_of_all_param_combination:
+        cur_model = train_model(X_train, y_train, model_params=params, model_type='svm')
+        cur_accuracy,predicted = predict_and_eval(cur_model, X_dev, y_dev)
+        if cur_accuracy > best_accuracy_so_far:
+            best_accuracy_so_far = cur_accuracy
+            best_model = cur_model
+
+    best_accuracy = best_accuracy_so_far
+    best_hparams = best_model.get_params()
+    return best_hparams, best_model, best_accuracy
