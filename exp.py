@@ -30,6 +30,7 @@ for split in splits:
 
     # Data splitting: Split data into train, test and dev as per given test and dev sizes
     X_train, X_test, X_dev, y_train, y_test, y_dev = split_train_dev_test(x,y, **split)
+
     print(f"no of total samples in databases:{len(X_train)+len(X_test)+len(X_dev)}")
     print(f"shape of images: {X_train[1]}")
 
