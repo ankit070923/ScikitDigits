@@ -9,4 +9,6 @@ RUN pip3 install -r /digits/requirements.txt
 # no need for conda or venv
 WORKDIR /digits
 # requirements installation
-CMD ["pytest"]
+# CMD ["pytest"]
+ENV FLASK_APP=api/app
+CMD ["flask", "run"]
