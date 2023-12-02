@@ -33,11 +33,7 @@ def tune_hparams(X_train, y_train, X_dev, y_dev, h_params_combinations, model_ty
 
     # save the best_model    
     dump(best_model, best_model_path) 
-
-
     return best_hparams, best_model_path, best_accuracy 
-
-
 
 def read_digits():
     digits = datasets.load_digits()
@@ -80,7 +76,7 @@ def train_test_dev_split(X, y, test_size, dev_size):
         
     return X_train, X_test, X_dev, y_train, y_test, y_dev
 
-# Question 2:
 def predict_and_eval(model, X_test, y_test):
     predicted = model.predict(X_test)
     return metrics.accuracy_score(y_test, predicted), metrics.f1_score(y_test, predicted, average="macro"), predicted
+    
